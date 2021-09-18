@@ -1,0 +1,16 @@
+---
+hv:
+  port: /dev/ttyS4
+  channel: 3
+laser:
+  port: /dev/ttyS3
+scope:
+  host: 192.167.91.242
+attenuator:
+  host: rd51-attenuator.ba.infn.it
+  port: 5000
+measurement:
+  scan: attenuation
+  beginning: 10
+  end: 80
+  step: 5
