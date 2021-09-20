@@ -1,17 +1,15 @@
 import serial
 from ftmlabdaq.protocols import serial
 
-class Board:
+class BoardCaen:
     
-    def __init__(self, type, port):
-        if type=='CAEN':
-            self.instrument = serial.Instrument(
-                port=port,
-                xonxoff = True,
-                endl = '\r\n',
-                timeout = 0.1
-            )
-        else: raise KeyError('Unknown board type')
+    def __init__(self, port):
+        self.instrument = serial.Instrument(
+            port=port,
+            xonxoff = True,
+            endl = '\r\n',
+            timeout = 0.1
+        )
 
     def get_settings(self):
         return self.instrument.get_settings()

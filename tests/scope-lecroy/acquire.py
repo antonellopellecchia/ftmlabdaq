@@ -16,6 +16,10 @@ print('Trigger', scope.read())
 scope.write('TRMD?')
 print('Trigger', scope.read())
 
+scope.write('CHDR OFF')
+scope.write('INR?')
+print('New signal acquired? ', scope.read())
+
 scope.write("WFSU SP, 1, NP, 0, FP, 0, SN, 0")
 
 print('Getting header...')
