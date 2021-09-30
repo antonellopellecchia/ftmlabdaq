@@ -41,6 +41,9 @@ def main():
     att_end = setup['measurement']['end']
     att_step = setup['measurement']['step']
     att_range = np.arange(att_beginning, att_end, att_step)
+
+    efficiency_points, attenuation_points = list(), list()
+
     for attenuation in att_range:
         print(f'Setting attenuation to {attenuation}%...')
         attenuator_controller.set_attenuation(attenuation)
@@ -53,12 +56,30 @@ def main():
 
         # do stuff here...
         print('Taking data...')
-        time.sleep(30)
-        print('Finished taking data')
 
+        """Take nsignals waveforms, compare amplitude with a threshold
+        and save ratio counts over threshold/nsignals"""
+        nsignals = setup['measurement']['nsignals']
+        threshold = setup['measurement']['threshold']
+        count_over_thr = 0
+        for isignal in range(nsignals):
+            # wait for scope to trigger and poll continuously:
+            while not scope.triggered: time.sleep(1e-3)
+            waveform = scope.waveform
+            if waveform.min < threshold: count_over_thr += 1
+        efficiency = count_over_thr/nsignals
+        
+        attenuation_points.append(actual_attenuation)
+        efficiency_points.append(efficiency)
+        print(efficiency_points)
+
+        #time.sleep(30)
+        print('Finished taking data')
         print('')
 
     print('Measurement finished.')
+
+
 
     return 0
 

@@ -14,3 +14,7 @@ measurement:
   beginning: 10
   end: 80
   step: 5
+  nsignals: 1000
+  threshold: -2
+  trigger: C2
+  signal: C1
