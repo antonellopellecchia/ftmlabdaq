@@ -20,7 +20,10 @@ class BoardCaen:
         return response
         
     def parse_response(self, response):
-        response_list = response.replace('\r\n', '').split(',')
+        response_list = response.replace('\r\n', ',').split(',')
+        try: response_list.remove('')
+        except ValueError:pass
+
         response_pairs = [s.split(':') for s in response_list]
         response_dict = dict(response_pairs)
         return response_dict

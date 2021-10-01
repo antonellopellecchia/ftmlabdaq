@@ -1,7 +1,8 @@
 ---
 hv:
   port: /dev/ttyS4
-  channel: 3
+  drift: 0
+  anode: 1
 laser:
   port: /dev/ttyS3
 scope:
@@ -10,11 +11,17 @@ attenuator:
   host: rd51-attenuator.ba.infn.it
   port: 5000
 measurement:
-  scan: attenuation
-  beginning: 10
-  end: 80
-  step: 5
+  #scan: attenuation
+  attenuation:
+    start: 10
+    end: 80
+    step: 5
+  amplification:
+    start: 400
+    end: 440
+    step: 5
+  drift_field: 1000
   nsignals: 1000
-  threshold: -2
+  threshold: -0.5
   trigger: C2
   signal: C1
