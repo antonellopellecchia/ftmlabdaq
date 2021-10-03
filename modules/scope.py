@@ -1,12 +1,12 @@
-import numpy as np
 import vxi11
+import numpy as np
 import matplotlib.pyplot as plt
 
 class ScopeLecroy:
 
     def __init__(self, hostname):
         self.hostname = hostname
-        self.scope = scope = vxi11.Instrument(hostname)
+        self.scope = vxi11.Instrument(hostname)
 
         print('Initializing communication to scope...')
         self.scope.write('TRMD?')
@@ -32,7 +32,14 @@ class ScopeLecroy:
         # tells whether the scope has triggered since the last poll
         self.scope.write('CHDR OFF')
         self.scope.write('INR?')
-        return self.scope.read()=='0'
+        has_triggered = self.scope.read()
+        return has_triggered!='0'
+
+    def set_threshold(self, channel, threshold, edge='NEG'):
+        # set trigger slope, channel and threshold in mV
+        self.scope.write(f'TRSL {edge}')
+        self.scope.write(f'TRIG_SELECT EDGE,SR,{channel}')
+        self.scope.write(f'{channel}:TRIG_LEVEL {threshold} mV')
 
     def get_waveform(self, channel):
         # gets last triggered waveform from chosen channel

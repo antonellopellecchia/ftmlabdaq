@@ -1,0 +1,10 @@
+---
+scope:
+  host: 192.167.91.242
+measurement:
+  threshold:
+    start: -0.05
+    end: -2
+    step: -0.05
+  acquisition_time: 10
+  channel: C1

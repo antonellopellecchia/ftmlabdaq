@@ -11,7 +11,10 @@ from modules import hv, laser, attenuator, scope
 def scan(configuration_file, output_file):
     """Efficiency scan as a function of laser pulse energy and amplification voltage"""
 
-    setup, hv_controller, attenuator_controller, scope_controller = configure.configure(configuration_file)
+    setup = configure.parse_setup(configuration_file)
+    hv_controller = hv.BoardCaen(setup['hv']['port'])
+    attenuator_controller = attenuator.Attenuator(setup['attenuator']['host'], setup['attenuator']['port'])
+    scope_controller = scope.ScopeLecroy(setup['scope']['host'])
 
     channel_drift = setup['hv']['drift']
     channel_anode = setup['hv']['anode']
@@ -101,7 +104,7 @@ def scan(configuration_file, output_file):
             #time.sleep(30)
             print('Finished taking data')
             measurement_df = pd.DataFrame(measurement_dict)
-            measurement_df.to_csv(args.output, sep=';', index=False)
+            measurement_df.to_csv(output_file, sep=';', index=False)
             print('Output file updated.')
             print('')
 
@@ -111,7 +114,7 @@ def scan(configuration_file, output_file):
     print('Laser attenuation set to 0.')
 
     measurement_df = pd.DataFrame(measurement_dict)
-    measurement_df.to_csv(args.output, sep=';', index=False)
+    measurement_df.to_csv(output_file, sep=';', index=False)
     print('Output file saved.')
 
     return 0
