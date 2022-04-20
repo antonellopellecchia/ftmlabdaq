@@ -103,20 +103,39 @@ class Waveform:
 
     @property
     def baseline(self):
-        baseline_stop = int(0.3*len(self))
+        baseline_stop = int(0.2*len(self))
         baseline_points = self.y[:baseline_stop]
         return baseline_points.mean()
+
+    @property
+    def noise(self):
+        baseline_stop = int(0.2*len(self))
+        baseline_points = self.y[:baseline_stop]
+        return baseline_points.std()
 
     @property
     def charge(self):
         return sum(self.y)*(self.x[1]-self.x[0])/50
 
+    @property
+    def amplitude(self):
+        return self.max - self.baseline
+
+    @property
+    def info(self):
+        info = f"baseline = {self.baseline:1.2f}\n"
+        info += f"amplitude = {self.amplitude:1.2f}\n"
+        info += f"noise = {self.noise:1.2f}\n"
+        return info
+
     def subtract_baseline(self):
         return self - self.baseline
 
+
     def save_figure(self, figure_path):
-        fig = plt.figure()
-        plt.plot(self.x, self.y)
+        fig = plt.figure(figsize=(12,9))
+        plt.plot(self.x, self.y, ".", label=self.info)
+        plt.legend()
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         fig.savefig(figure_path)

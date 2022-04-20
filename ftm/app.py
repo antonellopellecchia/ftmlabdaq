@@ -4,12 +4,13 @@ import sys
 import pathlib
 import argparse
 
-from modules import hv, laser, attenuator, scope
-import commands.scans.efficiency_voltage
-import commands.scans.efficiency_laser
-import commands.scans.threshold
-import commands.analysis.efficiency
-import commands.analysis.threshold
+from ftm.modules import hv, laser, attenuator, scope
+import ftm.commands.scans.efficiency_voltage
+import ftm.commands.scans.efficiency_laser
+import ftm.commands.scans.threshold
+import ftm.commands.analysis.efficiency
+import ftm.commands.analysis.efficiency_laser
+import ftm.commands.analysis.threshold
 
 def main():
     parser = argparse.ArgumentParser()
@@ -26,33 +27,34 @@ def main():
     parser_scan_efficiency = scan_subparsers.add_parser("efficiency-voltage")
     parser_scan_efficiency.add_argument("config", type=pathlib.Path, help="Configuration file in YAML format")
     parser_scan_efficiency.add_argument("output", type=pathlib.Path, help="Output csv file")
-    parser_scan_efficiency.set_defaults(func=lambda args: commands.scans.efficiency_voltage.scan(args.config, args.output))
+    parser_scan_efficiency.set_defaults(func=lambda args: ftm.commands.scans.efficiency_voltage.scan(args.config, args.output))
     # "scan threshold" subcommand
     parser_scan_efficiency = scan_subparsers.add_parser("threshold")
     parser_scan_efficiency.add_argument("config", type=pathlib.Path, help="Configuration file in YAML format")
     parser_scan_efficiency.add_argument("output", type=pathlib.Path, help="Output csv file")
-    parser_scan_efficiency.set_defaults(func=lambda args: commands.scans.threshold.scan(args.config, args.output))
+    parser_scan_efficiency.set_defaults(func=lambda args: ftm.commands.scans.threshold.scan(args.config, args.output))
     # "scan efficiency laser" subcommand
     parser_scan_efficiency = scan_subparsers.add_parser("efficiency-laser")
     parser_scan_efficiency.add_argument("config", type=pathlib.Path, help="Configuration file in YAML format")
     parser_scan_efficiency.add_argument("output", type=pathlib.Path, help="Output csv file")
-    parser_scan_efficiency.set_defaults(func=lambda args: commands.scans.efficiency_laser.scan(args.config, args.output))
+    parser_scan_efficiency.set_defaults(func=lambda args: ftm.commands.scans.efficiency_laser.scan(args.config, args.output))
  
     # "analyze efficiency" subcommand
     parser_analyze_efficiency = analyze_subparsers.add_parser("efficiency")
     parser_analyze_efficiency.add_argument("input", type=pathlib.Path, help="Result of the efficiency scan")
     parser_analyze_efficiency.add_argument("output", type=pathlib.Path, help="Output of the analysis")
-    parser_analyze_efficiency.set_defaults(func=lambda args: commands.analysis.efficiency.analyze(args.input, args.output))
+    parser_analyze_efficiency.set_defaults(func=lambda args: ftm.commands.analysis.efficiency.analyze(args.input, args.output))
     # "analyze efficiency-laser" subcommand
     parser_analyze_efficiency = analyze_subparsers.add_parser("efficiency-laser")
     parser_analyze_efficiency.add_argument("input", type=pathlib.Path, help="Raw result of the efficiency scan")
     parser_analyze_efficiency.add_argument("output", type=pathlib.Path, help="Output of the analysis")
-    parser_analyze_efficiency.set_defaults(func=lambda args: commands.analysis.efficiency_laser.analyze(args.input, args.output))
+    parser_analyze_efficiency.add_argument("--plot", type=pathlib.Path, help="Plot directory", default=None)
+    parser_analyze_efficiency.set_defaults(func=lambda args: ftm.commands.analysis.efficiency_laser.analyze(args.input, args.output, args.plot))
     # "analyze threshold" subcommand
     parser_analyze_threshold = analyze_subparsers.add_parser("threshold")
     parser_analyze_threshold.add_argument("input", type=pathlib.Path, help="Result of the threshold scan")
     parser_analyze_threshold.add_argument("output", type=pathlib.Path, help="Output of the analysis")
-    parser_analyze_threshold.set_defaults(func=lambda args: commands.analysis.threshold.analyze(args.input, args.output))
+    parser_analyze_threshold.set_defaults(func=lambda args: ftm.commands.analysis.threshold.analyze(args.input, args.output))
 
     # Parse the command line
     args = parser.parse_args()

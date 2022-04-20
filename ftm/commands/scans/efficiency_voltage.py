@@ -4,9 +4,9 @@ import time
 import numpy as np
 import pandas as pd
 
-import commands.scans.configure as configure
+import ftm.commands.scans.configure as configure
 
-from modules import hv, laser, attenuator, scope
+from ftm.modules import hv, laser, attenuator, scope
 
 def scan(configuration_file, output_file):
     """Efficiency scan as a function of laser pulse energy and amplification voltage"""

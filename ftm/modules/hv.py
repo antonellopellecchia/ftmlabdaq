@@ -1,5 +1,5 @@
 import serial
-from ftmlabdaq.protocols import serial
+from ftm.protocols import serial
 
 class BoardCaen:
     

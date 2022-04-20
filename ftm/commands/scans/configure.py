@@ -1,6 +1,6 @@
 import yaml
 
-from modules import hv, laser, attenuator, scope
+from ftm.modules import hv, laser, attenuator, scope
 
 def parse_setup(configuration_file):
     with open(configuration_file, "r") as stream:
