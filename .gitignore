@@ -1,4 +1,6 @@
 __pycache__/
 *.py[cod]
 *.png
+template.txt
 results/
+output/
