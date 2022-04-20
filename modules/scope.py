@@ -41,10 +41,13 @@ class ScopeLecroy:
         self.scope.write(f'TRIG_SELECT EDGE,SR,{channel}')
         self.scope.write(f'{channel}:TRIG_LEVEL {threshold} mV')
 
-    def get_waveform(self, channel):
+    def get_waveform_raw(self, channel):
         # gets last triggered waveform from chosen channel
         self.scope.write(f'{channel}:WF?')
-        scope_response = self.scope.read_raw()
+        return self.scope.read_raw()
+    
+    def get_waveform(self, channel):
+        scope_response = self.get_waveform_raw(channel)
         return Waveform.unpack(scope_response, format='IEEE488.2')
 
 class Waveform:

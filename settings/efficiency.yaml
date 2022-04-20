@@ -2,7 +2,7 @@
 hv:
   port: /dev/ttyS4
   drift: 0
-  anode: 1
+  anode: 2
 laser:
   port: /dev/ttyS3
 scope:
@@ -12,15 +12,15 @@ attenuator:
   port: 5000
 measurement:
   #scan: attenuation
-  attenuation:
-    start: 10
-    end: 80
-    step: 5
   amplification:
-    start: 400
+    start: 430
     end: 440
-    step: 5
-  drift_field: 1000
+    step: 10 # just one voltage
+  attenuation_raw:
+    start: 5150
+    end: 5400
+    step: 15
+  drift_field: 1100
   nsignals: 1000
   threshold: -0.5
   trigger: C2
