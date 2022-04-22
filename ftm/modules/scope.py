@@ -101,17 +101,22 @@ class Waveform:
     def max(self):
         return max(self.y)
 
+    def baseline_points(self, fraction=0.2):
+        baseline_stop = int(fraction*len(self))
+        return self.y[:baseline_stop]
+
     @property
     def baseline(self):
-        baseline_stop = int(0.2*len(self))
-        baseline_points = self.y[:baseline_stop]
-        return baseline_points.mean()
+        return self.baseline_points().mean()
 
     @property
     def noise(self):
-        baseline_stop = int(0.2*len(self))
-        baseline_points = self.y[:baseline_stop]
-        return baseline_points.std()
+        return self.baseline_points().std()
+    
+    @property
+    def safe_threshold(self):
+        # calculate threshold to have a count of zero
+        return max(self.baseline_points())
 
     @property
     def charge(self):
@@ -126,15 +131,17 @@ class Waveform:
         info = f"baseline = {self.baseline:1.2f}\n"
         info += f"amplitude = {self.amplitude:1.2f}\n"
         info += f"noise = {self.noise:1.2f}\n"
+        info += f"max = {self.max:1.2f}\n"
+        info += f"threshold = {self.safe_threshold:1.2f}\n"
+        info += f"fired = {self.max>self.safe_threshold}"
         return info
 
     def subtract_baseline(self):
         return self - self.baseline
 
-
     def save_figure(self, figure_path):
         fig = plt.figure(figsize=(12,9))
-        plt.plot(self.x, self.y, ".", label=self.info)
+        plt.plot(self.x, self.y, label=self.info)
         plt.legend()
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')

@@ -1,5 +1,7 @@
 import os
 import struct
+
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplhep
@@ -11,29 +13,50 @@ plt.style.use(mplhep.style.CMS)
 def plot(input_file, output_dir):
     """Plot efficiency as a function of laser pulse intensity for each amplification voltage"""
 
-    def plot_efficiency(df):
-        amplification = df.iloc[0]["amplification"]
-        ax.plot(df["attenuation"], df["efficiency"], 'o-', label=f"{amplification} V")
+    os.makedirs(output_dir, exist_ok=True)
 
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    efficiency_df = pd.read_csv(input_file, sep=";")
+    print("Reading input csv...")
+    input_df = pd.read_csv(input_file)
+    print("Calculating efficiency...")
+    attenuation_groups = input_df.groupby("attenuation")
+    result_dict = {
+        "attenuation": list(),
+        "amplification": list(),
+        "amplitude": list(),
+        "efficiency": list(),
+        "err_efficiency": list()
+    }
+    for attenuation,df in attenuation_groups:
+        result_dict["attenuation"].append(df["attenuation"].mean())
+        result_dict["amplification"].append(df["amplification"].mean())
+        result_dict["amplitude"].append(df["amplitude"].mean())
+        fired, total = df[df["fired"]==True].size, df.size
+        result_dict["efficiency"].append(fired/total)
+        result_dict["err_efficiency"].append( fired/total * np.sqrt(1/fired + 1/total) )
+    result_df = pd.DataFrame.from_dict(result_dict)
+    result_df.to_csv(output_dir/"result.csv")
 
-    fig, ax = plt.figure(), plt.axes()
-    efficiency_df.groupby(["amplification"]).apply(plot_efficiency)
+    eff_fig, eff_ax = plt.figure(figsize=(12,9)), plt.axes()
+    eff_ax.errorbar(result_df["attenuation"], result_df["efficiency"], yerr=result_df["err_efficiency"], fmt=".", color="black")
+    eff_ax.set_xlabel("Attenuator servo step (a.u.)")
+    eff_ax.set_ylabel("Efficiency")
+    eff_fig.savefig(output_dir/"efficiency.png")
 
-    ax.set_xlabel("Laser pulse energy (µJ)")
-    ax.set_ylabel("Efficiency")
-    ax.legend(title="Amplification voltage")
-    
-    fig.savefig(os.path.join(output_dir, "efficiency.pny"))
-
-def analyze(input_file, output_file, plot_dir=None):
+def analyze(input_file, result_dir, threshold, plot_dir=None):
     """ unpack and analyze raw file """
-    
-    if plot_dir: os.makedirs(plot_dir, exist_ok=True)
+   
+    os.makedirs(result_dir, exist_ok=True)
+    if plot_dir: os.makedirs(plot_dir/"signals", exist_ok=True)
 
     with open(input_file, "rb") as istream: iraw = istream.read()
-    
+   
+    output_dict = {
+        "attenuation": list(),
+        "amplification": list(),
+        "fired": list(),
+        "amplitude": list()
+    }
+
     offset = 0
     i = 0
     while True:
@@ -46,7 +69,18 @@ def analyze(input_file, output_file, plot_dir=None):
         offset += size_waveform_raw
         print(f"\rRead {offset} bytes over {len(iraw)}...          ", end="")
         waveform = Waveform.unpack(waveform_raw, "IEEE488.2")
-        if plot_dir and i%1000==0: waveform.save_figure(plot_dir/f"{amplification}V_{actual_attenuation}att.png")
-        i += 1
 
-    print("\nAnalysis completed.")
+        output_dict["attenuation"].append(actual_attenuation)
+        output_dict["amplification"].append(amplification)
+        output_dict["fired"].append(waveform.max>threshold)
+        output_dict["amplitude"].append(waveform.amplitude)
+
+        # plot and count options:
+        if plot_dir and i%1000==0: waveform.save_figure(plot_dir/f"signals/{amplification}V_{actual_attenuation}att.png")
+        i += 1
+    print("\nUnpacking completed.")
+    
+    output_df = pd.DataFrame.from_dict(output_dict)
+    output_df.to_csv(result_dir/"output.csv")
+
+    print("Analysis completed.")
