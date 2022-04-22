@@ -18,7 +18,7 @@ def analyze_scan(input_file, output_directory, plot_directory=None, variable="at
         
         mean_df_on = df_on.mean(axis=0)
         mean_df_off = df_off.mean(axis=0)
-        mean_df_on["current"] -= mean_df_off["current"]
+        mean_df_on["current"] -= -1.1810635e-09
         return mean_df_on.drop("source_status")
 
     os.makedirs(output_directory, exist_ok=True)
