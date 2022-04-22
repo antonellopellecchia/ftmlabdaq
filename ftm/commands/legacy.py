@@ -16,21 +16,21 @@ def import_scan(input_directory, output_file):
     input_files = os.listdir(input_directory)
     input_files = sorted([ f for f in input_files if pathlib.Path(f).suffix==".csv" ])
 
-    currents_dict = {
-        "vdrift": list(),
-        "vampl": list(),
-        "att": list(),
-        "source_status": list(),
-        "time": list(),
-        "current": list()
-    }
+    #currents_dict = {
+    #    "vdrift": list(),
+    #    "vampl": list(),
+    #    "att": list(),
+    #    "source_status": list(),
+    #    "time": list(),
+    #    "current": list()
+    #}
+    current_data = list()
     for input_file in input_files:
         # read only picoammeter current files:
         filename_match = re.search("(\d+)_(\d+)_(\d+)_(\w+)_ammeter.csv", input_file)
         if not filename_match: continue
         
         # parse run settings:
-        print("Reading run", filename_match.group(1, 2, 3, 4))
         vdrift, vampl, att = map(float, filename_match.group(1, 2, 3))
         source_status = filename_match.group(4)
 
@@ -38,17 +38,22 @@ def import_scan(input_directory, output_file):
             raise ValueError(f"Unknown source status: {source_status}")
         source_status = source_status=="on"
 
+        print("Reading run", vdrift, vampl, att, source_status)
         # fill data dict:
         currents = read_legacy(input_directory/input_file)
-        currents_dict["current"] = currents 
-        currents_dict["vdrift"] = vdrift*np.ones(len(currents))
-        currents_dict["vampl"] = vampl*np.ones(len(currents))
-        currents_dict["att"] = att*np.ones(len(currents))
-        currents_dict["source_status"] = source_status*np.ones(len(currents))
-        currents_dict["time"] = np.arange(len(currents))
+        current_data += [
+            (vdrift, vampl, att, source_status, t, current)
+            for t, current in enumerate(currents)
+        ]
+        #currents_dict["current"] += currents
+        #currents_dict["vdrift"] += vdrift*np.ones(len(currents))
+        #currents_dict["vampl"] += vampl*np.ones(len(currents))
+        #currents_dict["att"] += att*np.ones(len(currents))
+        #currents_dict["source_status"] += source_status*np.ones(len(currents), dtype=bool)
+        #currents_dict["time"] += np.arange(len(currents))
 
-    currents_df = pd.DataFrame.from_dict(currents_dict)
-    currents_df.to_csv(output_file)
+    currents_df = pd.DataFrame.from_records(current_data, columns=["vdrift", "vampl", "att", "source_status", "time", "current"])
+    currents_df.to_csv(output_file, index=False, sep=";")
 
 def import_gain(input_file, output_file):
     with uproot.open(input_file) as root_file:

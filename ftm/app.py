@@ -11,6 +11,7 @@ import ftm.commands.scans.threshold
 import ftm.commands.analysis.efficiency
 import ftm.commands.analysis.efficiency_laser
 import ftm.commands.analysis.threshold
+import ftm.commands.analysis.currents
 import ftm.commands.legacy
 
 def main():
@@ -63,6 +64,14 @@ def main():
     parser_analyze_threshold.add_argument("input", type=pathlib.Path, help="Result of the threshold scan")
     parser_analyze_threshold.add_argument("output", type=pathlib.Path, help="Output of the analysis")
     parser_analyze_threshold.set_defaults(func=lambda args: ftm.commands.analysis.threshold.analyze(args.input, args.output))
+    # "analyze currents" subcommand
+    parser_analyze_currents = analyze_subparsers.add_parser("currents")
+    parser_analyze_currents.add_argument("input", type=pathlib.Path, help="Scan output")
+    parser_analyze_currents.add_argument("output", type=pathlib.Path, help="Output of the analysis")
+    parser_analyze_currents.add_argument("--plot", type=pathlib.Path, default=None, dest="plotdir", help="Variable of the scan (att or vampl)")
+    parser_analyze_currents.add_argument("--variable", type=str, default="att", help="Variable of the scan (att or vampl)")
+    parser_analyze_currents.set_defaults(func=lambda args: ftm.commands.analysis.currents.analyze_scan(args.input, args.output, args.plotdir, args.variable))
+
     # "plot efficiency-laser" subcommand
     parser_plot_efficiency = plot_subparsers.add_parser("efficiency-laser")
     parser_plot_efficiency.add_argument("input", type=pathlib.Path, help="Analyzed result of the efficiency scan")
