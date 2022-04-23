@@ -39,7 +39,7 @@ def analyze_scan(
     if gain_file:
         gain_df = pd.read_csv(gain_file, sep=";")
         constant, slope = gain_df["constant"].unique(), gain_df["slope"].unique()
-        output_df["gain"] = np.exp(constant + slope * output_df["vampl"])
+        output_df["gain"] = np.exp(constant + slope * (output_df["vampl"] + 10))
         output_df["charge"] = -output_df["current"] / output_df["gain"] / laser_rate
         output_df["err_charge"] = (
             output_df["err_current"] / output_df["gain"] / laser_rate
