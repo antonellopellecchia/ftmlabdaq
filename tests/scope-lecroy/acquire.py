@@ -4,51 +4,51 @@ import numpy as np
 import vxi11
 import matplotlib.pyplot as plt
 
-scope = vxi11.Instrument('192.167.91.242')
+scope = vxi11.Instrument("192.167.91.242")
 
-#scope.write('TEMPLATE?')
-#template = scope.read()
-#with open('template.txt', 'w') as template_file:
+# scope.write('TEMPLATE?')
+# template = scope.read()
+# with open('template.txt', 'w') as template_file:
 #    template_file.write(template)
 
-scope.write('TRMD?')
-print('Trigger', scope.read())
+scope.write("TRMD?")
+print("Trigger", scope.read())
 
-scope.write('TRMD NORMAL')
-scope.write('TRMD?')
-print('Trigger', scope.read())
+scope.write("TRMD NORMAL")
+scope.write("TRMD?")
+print("Trigger", scope.read())
 
-scope.write('TRMD?')
-print('Trigger', scope.read())
+scope.write("TRMD?")
+print("Trigger", scope.read())
 
-scope.write('CHDR OFF')
-scope.write('INR?')
-print('New signal acquired? ', scope.read())
+scope.write("CHDR OFF")
+scope.write("INR?")
+print("New signal acquired? ", scope.read())
 
 scope.write("WFSU SP, 1, NP, 0, FP, 0, SN, 0")
-#print(scope.read())
+# print(scope.read())
 
-print('Getting header...')
+print("Getting header...")
 scope.write("C2:INSP? 'WAVEDESC'")
 header = scope.read()
 print(header)
 
-print('Getting waveform...')
-scope.write('C2:WF?')
+print("Getting waveform...")
+scope.write("C2:WF?")
 msg = scope.read_raw()
-print('Size', len(msg))
+print("Size", len(msg))
 
-print('Parsing waveform...')
+print("Parsing waveform...")
 
-msg_split = msg.split(b'\x00')
-#msg_split = [ s.decode() for s in msg_split ]
+msg_split = msg.split(b"\x00")
+# msg_split = [ s.decode() for s in msg_split ]
 print(msg_split)
 
 descriptor_name = msg[0:16]
-print('DESCRIPTOR_NAME', descriptor_name)
+print("DESCRIPTOR_NAME", descriptor_name)
 
-start = msg.find(b'WAVEDESC')
-print('Start', start)
+start = msg.find(b"WAVEDESC")
+print("Start", start)
 msg = msg[start:]
 
 # extract the number of elements in the binary data
@@ -93,4 +93,4 @@ print(v)
 
 fig = plt.figure()
 plt.plot(t, v)
-fig.savefig('waveform.png')
+fig.savefig("waveform.png")
