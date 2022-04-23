@@ -11,7 +11,7 @@ from ftm.modules.scope import Waveform
 plt.style.use(mplhep.style.CMS)
 
 
-def plot(input_file, output_dir):
+def plot(input_file, output_dir, charge_file):
     """Plot efficiency as a function of laser pulse intensity for each amplification voltage"""
 
     os.makedirs(output_dir, exist_ok=True)
@@ -50,6 +50,24 @@ def plot(input_file, output_dir):
     eff_ax.set_xlabel("Attenuator servo step (a.u.)")
     eff_ax.set_ylabel("Efficiency")
     eff_fig.savefig(output_dir / "efficiency.png")
+
+    if charge_file:
+        """Calibrate charge vs attenuation by polynomial fit"""
+        charge_df = pd.read_csv(charge_file, sep=";")
+        charge_polynomial = np.polyfit(charge_df["att"], charge_df["charge"], deg=5)
+        result_df["charge"] = np.polyval(charge_polynomial, result_df["attenuation"])
+
+        eff_fig, eff_ax = plt.figure(figsize=(12, 9)), plt.axes()
+        eff_ax.errorbar(
+            result_df["charge"] / 1.6e-19,
+            result_df["efficiency"],
+            yerr=result_df["err_efficiency"],
+            fmt=".",
+            color="black",
+        )
+        eff_ax.set_xlabel("Primary electrons")
+        eff_ax.set_ylabel("Efficiency")
+    eff_fig.savefig(output_dir / "efficiency_charge.png")
 
 
 def analyze(input_file, result_dir, threshold, plot_dir=None):

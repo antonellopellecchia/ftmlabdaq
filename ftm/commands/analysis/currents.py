@@ -45,18 +45,7 @@ def analyze_scan(
             output_df["err_current"] / output_df["gain"] / laser_rate
         )
 
-    output_df.to_csv(output_directory / "results.csv")
-
-    # output_dict = { variable: list(), "current": list() }
-    # for value, df in currents_group:
-    #    output_dict[variable].append(value)
-
-    #    df_on = currents_df[currents_df["source_status"]=="on"]
-    #    df_off = currents_df[currents_df["source_status"]=="off"]
-    #    output_dict["current"].append(df_on.mean() - df_off.mean())
-
-    # output_df = pd.DataFrame.from_dict(output_dict)
-    # output_df.to_csv(output_directory/"results.csv")
+    output_df.to_csv(output_directory / "results.csv", sep=";")
 
     if plot_directory:
         current_fig, current_ax = plt.figure(figsize=(12, 9)), plt.axes()

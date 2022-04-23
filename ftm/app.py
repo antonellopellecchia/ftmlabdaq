@@ -142,9 +142,15 @@ def main():
     parser_plot_efficiency.add_argument(
         "output", type=pathlib.Path, help="Output file path"
     )
+    parser_plot_efficiency.add_argument(
+        "--charge",
+        type=pathlib.Path,
+        default=None,
+        help="Charge per pulse calibration file",
+    )
     parser_plot_efficiency.set_defaults(
         func=lambda args: ftm.commands.analysis.efficiency_laser.plot(
-            args.input, args.output
+            args.input, args.output, args.charge
         )
     )
 
